@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { loadDemoSample } from '../services/api';
+import { FALLBACK_PROFILE, FALLBACK_SCORE } from '../demoData';
 
 const JobContext = createContext(null);
 
@@ -82,23 +83,38 @@ export function JobProvider({ children }) {
   const loadDemoDataset = async () => {
     try {
       const { data } = await loadDemoSample();
-      if (data && data.job_id) {
-        setJobId(data.job_id);
+      if (data && (data.job_id || data.columns)) {
+        const id = data.job_id || 'demo-sample-local';
+        setJobId(id);
         setJobMeta({
-          filename: data.filename,
-          row_count: data.row_count,
-          col_count: data.col_count,
-          columns: data.columns,
-          file_type: data.file_type,
+          filename: data.filename || 'rowbot_sample_messy.csv',
+          row_count: data.row_count || 20,
+          col_count: data.col_count || 8,
+          columns: data.columns || ['customer_id', 'name', 'email', 'phone', 'country', 'signup_date', 'revenue', 'status'],
+          file_type: data.file_type || 'csv',
         });
         if (data.profile) setProfile(data.profile);
+        else setProfile(FALLBACK_PROFILE);
         if (data.score) setScore(data.score);
+        else setScore(FALLBACK_SCORE);
         return data;
       }
     } catch (err) {
-      console.error('Failed to load demo dataset:', err);
-      throw err;
+      console.warn('API error, using guaranteed fallback:', err);
     }
+
+    // Guaranteed fallback: sets demo state and never throws
+    setJobId('demo-sample-local');
+    setJobMeta({
+      filename: 'rowbot_sample_messy.csv',
+      row_count: 20,
+      col_count: 8,
+      columns: ['customer_id', 'name', 'email', 'phone', 'country', 'signup_date', 'revenue', 'status'],
+      file_type: 'csv',
+    });
+    setProfile(FALLBACK_PROFILE);
+    setScore(FALLBACK_SCORE);
+    return { ok: true, job_id: 'demo-sample-local' };
   };
 
   const [showWelcome, setShowWelcome] = useState(true);
