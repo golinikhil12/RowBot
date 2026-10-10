@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { JobProvider } from './contexts/JobContext';
 import Sidebar from './components/Sidebar';
@@ -90,7 +90,7 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <JobProvider>
         <Toaster
           position="top-right"
@@ -108,6 +108,6 @@ export default function App() {
         />
         <AppContent />
       </JobProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
